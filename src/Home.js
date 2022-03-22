@@ -8,6 +8,7 @@ function Home(props) {
     const [error, setError] = useState(true);
     const [search, setSearch] = useState("");
     const [sortConfig, setSortConfig] = useState('');
+    const [order, setOrder] = useState('ASC');
 
     useEffect(() => {
         fetch('http://localhost/api/list.php')
@@ -44,16 +45,21 @@ function OnFilteringData(e){
     setSearch(e.target.value)
 }
 
-    const requestSort = (key) => {
-        let direction = 'ascending';
-        if (
-            sortConfig &&
-            sortConfig.key === key &&
-            sortConfig.direction === 'ascending'
-        ) {
-            direction = 'descending';
+    const requestSort = (col) => {
+        if(order === 'ASC'){
+            const sorted = [...lists].sort((a, b) =>
+            a[col].toLowerCase() > b[col].toLowerCase() ? 1 : -1
+            );
+            setLists(sorted);
+            setOrder("DSC")
         }
-        setSortConfig({ key, direction });
+        if(order === 'DSC'){
+            const sorted = [...lists].sort((a, b) =>
+                a[col].toLowerCase() < b[col].toLowerCase() ? 1 : -1
+            );
+            setLists(sorted);
+            setOrder("ASC")
+        }
     };
     return (
         <div>
@@ -70,9 +76,11 @@ function OnFilteringData(e){
                             {lists && lists.data.headers.map((item) =>
                                <thead>
                                 <tr key={item}>
+
                                     {Array(Object.values(item)).map((it) =>
                                         it.map((focus, fkes) =>
-                                        (focus.hidden == false) ? <th key={fkes}><span className="tofinal" onClick={() => requestSort(focus.title)}>{ focus.title } </span>{(focus.sortable == true) ? "sort":"" } <br/> <input type={(focus.searchable == true) ? "text":"hidden"} onChange={OnFilteringData}  />  </th> : ""
+
+                                            (focus.hidden == false) ? <th key={fkes}><span className="tofinal">{ focus.title } </span>{(focus.sortable == true) ? <button onClick={() => requestSort(focus.title.toLowerCase())}>Sort</button>:"" } <br/> <input type={(focus.searchable == true) ? "text":"hidden"} onChange={OnFilteringData}  />  </th> : ""
                                         )
                                     )}
                                 </tr>
