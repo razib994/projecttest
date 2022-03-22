@@ -2,15 +2,13 @@ import React, {useEffect, useState} from 'react';
 import {Axios} from "axios";
 
 
+
 function AddForm(props) {
     const url = "http://localhost/api/get_form.php";
     const [lists, setList] = useState(null);
     const [isLoading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [item, setItems] = useState({
-        fullname:"",
-        email:"",
-    });
+    const [item, setItems] = useState([]);
     useEffect(() => {
             fetch('http://localhost/api/get_form.php')
                 .then((res)=>{
@@ -31,17 +29,13 @@ function AddForm(props) {
          setItems({...item, [e.target.name]:e.target.value });
 
     }
+
     const submitForm = (e) => {
         e.preventDefault();
-        Axios.post(url, {
-            fullname:item.fullname,
-            email:item.email,
-        }).then(res => {
-            console.log(res.item)
-        }).catch(err => {
-            console.log(err);
-        })
+        console.log(item)
+        setItems(item)
     }
+
     return (
         <div>
             <div className="container">
@@ -51,13 +45,11 @@ function AddForm(props) {
                         <form onSubmit={(e) =>submitForm(e)}>
                         {lists && lists.data.fields.map((item) =>
                             Object.values(item).map((titles) =>
-
                                  <div className="mb-3 row">
-                                     {console.log(titles)}
                                     <label className="col-sm-2 col-form-label">  {titles.title} </label>
                                      <div className="col-sm-10">
 
-                                         {(titles.type == 'text' || titles.type =='email' ) ? <input type={titles.type} name={titles.title.split(" ").join("").toLowerCase()} onChange={(e)=>handleData(e)}  required={(titles.required == true) ? "required":""} className={titles.html_attr.class} id={titles.html_attr.id}/>:(titles.type == 'radio') ? titles.options.map((radioitem) => <div><input type={titles.type} checked={(radioitem.key == titles.default) ? 'checked':''} name={radioitem.key}/> <span>{radioitem.label} </span></div>):(titles.type == 'textarea') ? <textarea></textarea>:(titles.type == 'repeater') ? <><button >+Add</button> {Object.values(titles.repeater_fields).map((sub) => <div> {sub.title} <input type={sub.type}/> </div>)} </>:(titles.type == 'select')? <select> {titles.options.map((radioitem) => <option value={titles.key} name={radioitem.key}>{radioitem.label} </option> )}</select>:""}
+                                         {(titles.type == 'text' || titles.type =='email' ) ? <input type={titles.type} name={titles.title.split(" ").join("").toLowerCase()} onChange={(e)=>handleData(e)}  required={(titles.required == true) ? "required":""} className={titles.html_attr.class} id={titles.html_attr.id}/>:(titles.type == 'radio') ? titles.options.map((radioitem) => <div><input onChange={(e)=>handleData(e)} type={titles.type} checked={(radioitem.key == titles.default) ? 'checked':''} name="gender" value={radioitem.key}/> <>{radioitem.label} </></div>):(titles.type == 'textarea') ? <textarea name={titles.title.split(" ").join("").toLowerCase()} onChange={(e)=>handleData(e)}></textarea>:(titles.type == 'repeater') ? <><button >+Add</button> {Object.values(titles.repeater_fields).map((sub) => <div> {sub.title} <input onChange={(e)=>handleData(e)} name={sub.title.split(" ").join("").toLowerCase()} type={sub.type} required={sub.required==true?'required':''}/> </div>)} </>:(titles.type == 'select')? <select name="gender" onChange={(e)=>handleData(e)}> {titles.options.map((radioitem) => <option value={radioitem.key} >{radioitem.label} </option> )}</select>:""}
                                      </div>
                                 </div>
                             )
